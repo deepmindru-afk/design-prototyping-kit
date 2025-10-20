@@ -275,6 +275,20 @@ export const mockTools: ToolItem[] = [
     isBuiltIn: true,
   },
   {
+    id: "transfer-agent",
+    name: "Transfer agent",
+    description: "Allows your agent to transfer the call to another agent",
+    enabled: false,
+    isBuiltIn: true,
+  },
+  {
+    id: "detect-language",
+    name: "Detect language",
+    description: "Allows your agent to detect the language of the user",
+    enabled: false,
+    isBuiltIn: true,
+  },
+  {
     id: "custom-tool-1",
     name: "custom_tool",
     description: "The user wrote this description in the panel.",

@@ -269,8 +269,8 @@ export function DeploymentPanel({
         opacity: exitTransition
       }}
       className={cn(
-        "flex flex-col border-l border-b border-separator1 overflow-hidden",
-        status === "success" ? "bg-bgSuccess1" : "bg-bg1",
+        "flex flex-col border border-separator1 overflow-hidden",
+        status === "success" ? "bg-bgSuccess1 border-separatorSuccess" : "bg-bg1",
         className
       )}
     >
@@ -359,14 +359,14 @@ export function DeploymentPanel({
       ) : (
         // Deploying State Header
         <div className="flex items-center justify-between px-4 py-3 border-b border-separator1 flex-shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <LoaderIcon className="w-4 h-4 text-fg1 animate-spin" />
             <div className="flex flex-col">
               <h3 className="text-sm font-semibold text-fg1">
-                Your agent is being deployed
+                Deploying your agent...
               </h3>
               <p className="text-xs text-fg3">
-                Optional description text can go here.
+                Any new edits to your agent will need to be deployed again. This may take a few minutes.
               </p>
             </div>
           </div>

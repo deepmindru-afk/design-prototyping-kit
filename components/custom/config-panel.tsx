@@ -176,7 +176,7 @@ function TopBar({ saveState, historyItems, currentUserEmail }: TopBarProps) {
               variant="secondary"
               size="sm"
             >
-              View edit history
+              Edit history
               <ArrowHistoryClock className="ml-1 h-3 w-3" />
             </Button>
           }
@@ -447,7 +447,7 @@ export default function ConfigPanel({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 h-full bg-bg1 border-l border-separator1",
+        "flex flex-col gap-2 h-full bg-bg1 border-r border-separator1",
         className
       )}
     >
@@ -938,18 +938,32 @@ export default function ConfigPanel({
                             <p className="text-xs font-semibold text-fg1">
                               {tool.name}
                             </p>
-                            <p className="text-xs font-normal text-fg2 max-w-[400px] overflow-ellipsis overflow-hidden whitespace-nowrap">
+                            <p className="text-xs font-normal text-fg3 max-w-[400px] overflow-ellipsis overflow-hidden whitespace-nowrap">
                               {tool.description}
                             </p>
                           </div>
                           <div className="flex items-center gap-2 h-7">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-8 p-0 hover:bg-bg3 rounded"
-                            >
-                              <Pencil className="h-3 w-3 text-fg1" />
-                            </Button>
+                            {tool.enabled && (
+                              <AddToolPanel
+                                tool={tool}
+                                onSave={(updatedTool) => {
+                                  const updatedTools = tools.map((t) =>
+                                    t.id === tool.id ? updatedTool : t
+                                  );
+                                  handleToolsChange(updatedTools);
+                                }}
+                                
+                                trigger={
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 w-8 p-0 hover:bg-bg3 rounded"
+                                  >
+                                    <Pencil className="h-3 w-3 text-fg1" />
+                                  </Button>
+                                }
+                              />
+                            )}
                             <Toggle
                               checked={tool.enabled}
                               onCheckedChange={(checked) => {
@@ -981,6 +995,7 @@ export default function ConfigPanel({
                         const updatedTools = [...tools, newTool];
                         handleToolsChange(updatedTools);
                       }}
+                      
                       trigger={
                         <Button
                           variant="ghost"
@@ -1021,24 +1036,27 @@ export default function ConfigPanel({
                                 </p>
                               </div>
                               <div className="flex items-center gap-2 h-7">
-                                <AddToolPanel
-                                  tool={tool}
-                                  onSave={(updatedTool) => {
-                                    const updatedTools = tools.map((t) =>
-                                      t.id === tool.id ? updatedTool : t
-                                    );
-                                    handleToolsChange(updatedTools);
-                                  }}
-                                  trigger={
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 w-8 p-0 hover:bg-bg3 rounded"
-                                    >
-                                      <Pencil className="h-3 w-3 text-fg1" />
-                                    </Button>
-                                  }
-                                />
+                                {tool.enabled && (
+                                  <AddToolPanel
+                                    tool={tool}
+                                    onSave={(updatedTool) => {
+                                      const updatedTools = tools.map((t) =>
+                                        t.id === tool.id ? updatedTool : t
+                                      );
+                                      handleToolsChange(updatedTools);
+                                    }}
+                                    
+                                    trigger={
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-8 p-0 hover:bg-bg3 rounded"
+                                      >
+                                        <Pencil className="h-3 w-3 text-fg1" />
+                                      </Button>
+                                    }
+                                  />
+                                )}
                                 <Toggle
                                   checked={tool.enabled}
                                   onCheckedChange={(checked) => {

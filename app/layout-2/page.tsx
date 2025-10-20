@@ -134,30 +134,10 @@ export default function Home() {
 
       {/* Two Column Layout */}
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left Column - Preview Panels */}
-        <div className="flex-1 flex flex-col bg-bg1 overflow-hidden min-w-0 max-w-full dot-grid-bg p-8 gap-2">
-          <div className="flex items-center justify-center">
-            <SegmentedControl
-              value={activePanel}
-              onValueChange={(value) => setActivePanel(value as "preview" | "code")}
-              options={[
-                { value: "preview", label: "Preview" },
-                { value: "code", label: "Code" }
-              ]}
-              className="w-full"
-            />
-          </div>
-          {activePanel === "preview" ? (
-            <CallPreviewPanel className="flex-1 min-h-0" />
-          ) : (
-            <CodePreviewPanel className="flex-1 min-h-0" />
-          )}
-        </div>
-
-        {/* Right Column - Deployment Panel + Config Panel */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0 max-w-full">
+        {/* Left Column - Deployment Panel + Config Panel */}
+        <div className="flex-2 flex flex-col overflow-hidden min-w-0 max-w-full">
           {/* Deployment Panel */}
-          <AnimatePresence>
+          {/* <AnimatePresence>
             {isDeploymentVisible && (
               <DeploymentPanel
                 status={deploymentStatus}
@@ -171,7 +151,7 @@ export default function Home() {
                 }}
               />
             )}
-          </AnimatePresence>
+          </AnimatePresence> */}
 
           <motion.div
             layout
@@ -253,6 +233,41 @@ export default function Home() {
               className="flex-1 min-h-0"
             />
           </motion.div>
+        </div>
+        {/* Right Column - Preview Panels */}
+        <div className="flex-1 flex flex-col bg-bg1 overflow-hidden min-w-0 max-w-full dot-grid-bg p-4 gap-2">
+          {/* Deployment Panel */}
+          <AnimatePresence>
+            {isDeploymentVisible && (
+              <DeploymentPanel
+                status={deploymentStatus}
+                isExpanded={isDeploymentExpanded}
+                onExpandChange={setIsDeploymentExpanded}
+                onStatusChange={setDeploymentStatus}
+                onClose={() => {
+                  setIsDeploymentVisible(false);
+                  // Reset to deploying for next deployment
+                  setTimeout(() => setDeploymentStatus("deploying"), 300);
+                }}
+              />
+            )}
+          </AnimatePresence>
+          <div className="flex items-center justify-center">
+            <SegmentedControl
+              value={activePanel}
+              onValueChange={(value) => setActivePanel(value as "preview" | "code")}
+              options={[
+                { value: "preview", label: "Preview" },
+                { value: "code", label: "Code" }
+              ]}
+              className="w-full"
+            />
+          </div>
+          {activePanel === "preview" ? (
+            <CallPreviewPanel className="flex-1 min-h-0" />
+          ) : (
+            <CodePreviewPanel className="flex-1 min-h-0" />
+          )}
         </div>
       </div>
     </div>

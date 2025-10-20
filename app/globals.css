@@ -316,15 +316,15 @@
 @layer utilities {
   .dot-grid-bg {
     background-image: 
-      radial-gradient(circle, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
-    background-size: 20px 20px;
+      radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-size: 4px 4px;
     background-position: 0 0;
   }
   
   .dark .dot-grid-bg {
     background-image: 
       radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-    background-size: 8px 8px;
+    background-size: 4px 4px;
     background-position: 0 0;
   }
   
