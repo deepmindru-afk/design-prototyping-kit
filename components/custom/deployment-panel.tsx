@@ -585,7 +585,7 @@ export function DeploymentPanel({
                   ? { duration: 0.15, ease: [0.0, 0.0, 0.2, 1] as const }
                   : { duration: 0.25, ease: [0.0, 0.0, 0.2, 1] as const }
               }
-              className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg1 to-transparent pointer-events-none"
+              className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-b from-bg1 to-transparent pointer-events-none"
             />
           )}
         </div>

@@ -600,7 +600,7 @@ export default function ConfigPanel({
             Actions
           </TabsTrigger>
           <TabsTrigger value="secrets" className="cursor-pointer">
-            Secrets
+            Advanced
           </TabsTrigger>
         </TabsList>
 
@@ -1308,7 +1308,7 @@ export default function ConfigPanel({
           </div>
         </TabsContent>
         <TabsContent value="secrets">
-          <div className="flex flex-col align-center justify-center h-full w-full p-4">New secrets panel</div>
+          <div className="flex flex-col align-center justify-center h-full w-full p-4">New advanced panel</div>
         </TabsContent>
       </Tabs>
     </div>
