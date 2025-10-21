@@ -16,6 +16,7 @@ import {
 } from "../../icons/react";
 import { mockTools } from "@/lib/mock-data";
 import type { HistoryItem } from "@/components/custom/edit-history-panel";
+import { toast } from "sonner";
 
 export default function Home() {
   // State management for active panel view
@@ -78,6 +79,19 @@ export default function Home() {
     setHistoryItems((prev) => [newHistoryItem, ...prev]);
   };
 
+  // Function to copy sandbox link
+  const handleCopySandboxLink = async () => {
+    try {
+      // Replace with actual sandbox URL
+      const sandboxUrl = `${window.location.origin}/sandbox/${config.name.toLowerCase().replace(/\s+/g, "-")}`;
+      await navigator.clipboard.writeText(sandboxUrl);
+      toast.success("Sandbox link copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy sandbox link:", err);
+      toast.error("Failed to copy sandbox link");
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#070707]">
       {/* Page Header */}
@@ -105,7 +119,7 @@ export default function Home() {
 
           <div className="h-7 w-px bg-separator1" />
 
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={handleCopySandboxLink}>
             <ChainLink3Icon className="w-3 h-3" />
           </Button>
           <Button variant="secondary" size="sm">
@@ -134,22 +148,6 @@ export default function Home() {
         {/* Left Column - Deployment Panel + Config Panel */}
         <div className="flex-2 flex flex-col overflow-hidden min-w-0 max-w-full">
           {/* Deployment Panel */}
-          {/* <AnimatePresence>
-            {isDeploymentVisible && (
-              <DeploymentPanel
-                status={deploymentStatus}
-                isExpanded={isDeploymentExpanded}
-                onExpandChange={setIsDeploymentExpanded}
-                onStatusChange={setDeploymentStatus}
-                onClose={() => {
-                  setIsDeploymentVisible(false);
-                  // Reset to deploying for next deployment
-                  setTimeout(() => setDeploymentStatus("deploying"), 300);
-                }}
-              />
-            )}
-          </AnimatePresence> */}
-
           <motion.div
             layout
             transition={{

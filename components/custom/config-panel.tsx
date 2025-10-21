@@ -27,7 +27,14 @@ import {
 } from "@/components/ui/popover";
 import { ChartContainer } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
-import { ChevronDown, Plus, Sparkles, Pencil, Maximize2, X } from "lucide-react";
+import {
+  ChevronDown,
+  Plus,
+  Sparkles,
+  Pencil,
+  Maximize2,
+  X,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -405,7 +412,8 @@ export default function ConfigPanel({
   const [customModelId, setCustomModelId] = React.useState("");
 
   // Expanded instructions modal state
-  const [isInstructionsExpanded, setIsInstructionsExpanded] = React.useState(false);
+  const [isInstructionsExpanded, setIsInstructionsExpanded] =
+    React.useState(false);
 
   // Handle field changes and trigger save state
   const handleFieldChange = React.useCallback((fieldName: string) => {
@@ -591,6 +599,9 @@ export default function ConfigPanel({
           <TabsTrigger value="behavior" className="cursor-pointer">
             Actions
           </TabsTrigger>
+          <TabsTrigger value="secrets" className="cursor-pointer">
+            Secrets
+          </TabsTrigger>
         </TabsList>
 
         {/* Instructions Tab Content */}
@@ -650,7 +661,10 @@ export default function ConfigPanel({
             </div>
 
             {/* Expanded Instructions Modal */}
-            <Dialog open={isInstructionsExpanded} onOpenChange={setIsInstructionsExpanded}>
+            <Dialog
+              open={isInstructionsExpanded}
+              onOpenChange={setIsInstructionsExpanded}
+            >
               <DialogContent className="max-w-4xl w-full h-[90vh] flex flex-col p-0 gap-0">
                 <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0">
                   <div className="flex items-center justify-between">
@@ -667,13 +681,16 @@ export default function ConfigPanel({
                     </Button>
                   </div>
                   <p className="text-sm text-fg3 font-normal mt-1">
-                    Define your agent&apos;s personality, tone, and behavior guidelines
+                    Define your agent&apos;s personality, tone, and behavior
+                    guidelines
                   </p>
                 </DialogHeader>
                 <div className="flex-1 min-h-0 px-6 pb-6">
                   <Textarea
                     value={systemInstructions}
-                    onChange={(e) => handleSystemInstructionsChange(e.target.value)}
+                    onChange={(e) =>
+                      handleSystemInstructionsChange(e.target.value)
+                    }
                     className="w-full h-full border-separator1 bg-transparent text-fg1 text-sm leading-[1.6] resize-none focus-visible:ring-1"
                     placeholder="Enter detailed instructions for your agent..."
                   />
@@ -1289,6 +1306,9 @@ export default function ConfigPanel({
               defaultOpen={false}
             />
           </div>
+        </TabsContent>
+        <TabsContent value="secrets">
+          <div className="flex flex-col align-center justify-center h-full w-full p-4">New secrets panel</div>
         </TabsContent>
       </Tabs>
     </div>

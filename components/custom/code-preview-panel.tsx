@@ -1,11 +1,18 @@
 "use client";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+  vscDarkPlus,
+  vs,
+  oneLight
+} from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { PanelHeader } from "./panel-header";
 import { sampleAgentCode } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "lucide-react";
+import { toast } from "sonner";
 
 interface CodePreviewPanelProps {
   isExpanded?: boolean;
@@ -18,6 +25,34 @@ export function CodePreviewPanel({
   onToggleExpand,
   className,
 }: CodePreviewPanelProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use dark theme as default until mounted to prevent flash
+  const syntaxTheme = mounted && resolvedTheme === "light" ? oneLight : vscDarkPlus;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(sampleAgentCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      
+      // Show success toast
+      toast.success("Code copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy code:", err);
+      
+      // Show error toast
+      toast.error("Failed to copy code");
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -28,21 +63,23 @@ export function CodePreviewPanel({
       <PanelHeader
         title="Code"
         action={
-          <a
-            href="https://github.com/livekit-examples/agent-starter-embed/blob/main/agent.py"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-fg3 hover:text-fg1 hover:bg-bg2 border border-transparent transition-colors"
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-fg3 hover:text-fg1 hover:bg-bg2 border border-transparent transition-colors rounded"
           >
-            Copy agent.py
-            <CopyIcon className="w-3 h-3" />
-          </a>
+            {copied ? "Copied!" : "Copy agent.py"}
+            {copied ? (
+              <CheckIcon className="w-3 h-3" />
+            ) : (
+              <CopyIcon className="w-3 h-3" />
+            )}
+          </button>
         }
       />
       <div className="flex-1 overflow-auto min-h-0">
         <SyntaxHighlighter
           language="python"
-          style={vscDarkPlus}
+          style={syntaxTheme}
           showLineNumbers
           customStyle={{
             margin: 0,
@@ -54,7 +91,7 @@ export function CodePreviewPanel({
           lineNumberStyle={{
             minWidth: "3em",
             paddingRight: "1em",
-            color: "#666666",
+            color: resolvedTheme === "light" ? "#666666" : "#858585",
             userSelect: "none",
           }}
           codeTagProps={{
@@ -70,4 +107,3 @@ export function CodePreviewPanel({
     </div>
   );
 }
-

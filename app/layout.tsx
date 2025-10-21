@@ -2,10 +2,18 @@ import type { Metadata } from "next";
 import { Public_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider, Sidebar, SidebarInset, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarInset,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
 import { NavLogo } from "@/components/custom/nav-logo";
 import { NavMenu } from "@/components/custom/nav-menu";
 import { ThemeToggle } from "@/components/custom/theme-toggle";
+import { Toaster } from "@/components/ui/sonner";
 
 const publicSans = Public_Sans({
   variable: "--font-public-sans",
@@ -28,9 +36,9 @@ export default function RootLayout({
       <body
         className={`${publicSans.variable} antialiased h-screen overflow-hidden`}
       >
-        <ThemeProvider 
-          attribute="class" 
-          defaultTheme="system" 
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange={false}
           storageKey="prototyping-theme"
@@ -44,13 +52,14 @@ export default function RootLayout({
                 <NavMenu />
               </SidebarContent>
               <SidebarFooter className="mt-auto p-4">
-                <ThemeToggle/>
+                <ThemeToggle />
               </SidebarFooter>
             </Sidebar>
             <SidebarInset className="h-screen overflow-hidden">
               {children}
             </SidebarInset>
           </SidebarProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
