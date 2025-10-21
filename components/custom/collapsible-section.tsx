@@ -33,7 +33,12 @@ export default function CollapsibleSection({
       className={cn("w-full", className)}
     >
       <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-4 px-4 py-3 border-b border-separator1 w-full hover:bg-bg2 transition-colors">
+        <div
+          className={cn(
+            "flex items-center gap-4 px-4 py-3 cursor-pointer w-full bg-bg1 hover:bg-bg2 transition-colors",
+            !isOpen && "border-b border-separator1"
+          )}
+        >
           <div className="flex items-start gap-2 flex-1 min-w-0">
             <div className="flex items-center pt-0.5 h-[21px]">
               {isOpen ? (

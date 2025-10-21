@@ -9,49 +9,92 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { ChevronTopIcon, ChevronBottomIcon } from "@/icons/react";
 
 // TypeScript interfaces
 export interface HistoryItem {
   id: string;
-  editName: string;
-  userEmail: string;
   timestamp: string;
+  userEmail: string;
+  changes: string[];
+  isDeployed?: boolean;
 }
 
 // Mock history data for prototype
 const mockHistoryData: HistoryItem[] = [
   {
     id: "1",
-    editName: "Updated system instructions",
-    userEmail: "dylan@example.com",
     timestamp: "2 hours ago",
+    userEmail: "dylan@example.com",
+    changes: [
+      "Updated system instructions",
+      "Modified greeting behavior",
+      "Changed response tone to friendly",
+    ],
+    isDeployed: true,
   },
   {
     id: "2",
-    editName: "Changed voice to Alloy",
-    userEmail: "sarah@example.com",
     timestamp: "5 hours ago",
+    userEmail: "sarah@example.com",
+    changes: [
+      "Changed voice to Alloy",
+      "Updated audio settings",
+    ],
   },
   {
     id: "3",
-    editName: "Modified welcome message",
-    userEmail: "dylan@example.com",
     timestamp: "Yesterday",
+    userEmail: "dylan@example.com",
+    changes: [
+      "Modified welcome message",
+      "Added user context handling",
+      "Updated error responses",
+      "Changed timeout settings",
+    ],
   },
   {
     id: "4",
-    editName: "Enabled greeting prompt",
-    userEmail: "mike@example.com",
     timestamp: "2 days ago",
+    userEmail: "mike@example.com",
+    changes: [
+      "Enabled greeting prompt",
+    ],
   },
   {
     id: "5",
-    editName: "Updated language to Spanish",
-    userEmail: "dylan@example.com",
     timestamp: "3 days ago",
+    userEmail: "dylan@example.com",
+    changes: [
+      "Updated language to Spanish",
+      "Modified translation settings",
+      "Changed locale preferences",
+    ],
   },
 ];
+
+// Individual Change Item Component
+interface ChangeItemProps {
+  text: string;
+  isFirst: boolean;
+  isLast: boolean;
+}
+
+function ChangeItem({ text, isFirst, isLast }: ChangeItemProps) {
+  return (
+    <div
+      className={cn(
+        "border border-separator2 px-2 py-1.5 -mb-px",
+        isFirst && "rounded-t",
+        isLast && "rounded-b"
+      )}
+    >
+      <p className="text-xs font-normal text-fg3 leading-[1.5]">{text}</p>
+    </div>
+  );
+}
 
 // History List Item Component
 interface HistoryListItemProps {
@@ -61,29 +104,89 @@ interface HistoryListItemProps {
 }
 
 function HistoryListItem({ item, isSelected, onSelect }: HistoryListItemProps) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  // Safety check: ensure changes array exists
+  const changes = item.changes || [];
+
+  const handleToggle = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleItemClick = () => {
+    onSelect();
+  };
+
   return (
-    <button
-      onClick={onSelect}
+    <div
+      onClick={handleItemClick}
       className={cn(
-        "w-full flex items-start gap-2 p-4 rounded-md bg-bg2 border border-separator1 transition-all",
-        "hover:bg-bg3 focus:outline-none cursor-pointer",
+        "bg-bg2 border border-separator1 rounded p-3 flex flex-col gap-2 transition-all cursor-pointer",
+        "hover:bg-bg3",
         isSelected && "ring-1 ring-fgAccent1"
       )}
     >
-      <div className="flex-1 flex flex-col items-start gap-0 min-w-0">
-        <p className="text-sm font-semibold text-fg1 leading-[1.5] text-left">
-          {item.editName}
-        </p>
-        <p className="text-sm font-normal text-fg3 leading-[1.5] text-left">
-          {item.userEmail}
-        </p>
+      {/* Header: Date/Time + User Email + Badge */}
+      <div className="flex items-start gap-2 w-full">
+        <div className="flex-1 flex flex-col items-start gap-0 min-w-0">
+          <p className="text-sm font-semibold text-fg1 leading-[1.5]">
+            {item.timestamp}
+          </p>
+          <p className="text-xs font-normal text-fg3 leading-[1.5]">
+            {item.userEmail}
+          </p>
+        </div>
+        {item.isDeployed && (
+          <div className="flex-shrink-0">
+            <div className="bg-bgSuccess1 text-fgSuccess border border-separatorSuccess rounded px-1.5 py-1 flex items-center justify-center">
+              <p className="text-[10px] font-semibold uppercase leading-[1.5]">
+                DEPLOYED VERSION
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="flex-shrink-0">
-        <p className="text-xs font-normal text-fg3 leading-[1.5] whitespace-nowrap">
-          {item.timestamp}
-        </p>
-      </div>
-    </button>
+
+      {/* Collapsible Changes List */}
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <CollapsibleContent>
+          <div className="w-full overflow-clip rounded">
+            {changes.map((change, index) => (
+              <ChangeItem
+                key={index}
+                text={change}
+                isFirst={index === 0}
+                isLast={index === changes.length - 1}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+
+        {/* Footer: Change Count + Expand/Collapse Button */}
+        <div className="flex items-center gap-2 w-full">
+          <div className="flex-1">
+            <p className="text-xs font-normal text-fg3 leading-[1.5]">
+              {changes.length} {changes.length === 1 ? "change" : "changes"}
+            </p>
+          </div>
+          <CollapsibleTrigger asChild>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggle();
+              }}
+              className="h-7 w-8 flex items-center justify-center rounded hover:bg-bg3 transition-colors"
+            >
+              {isExpanded ? (
+                <ChevronTopIcon className="w-3 h-3 text-fg1" />
+              ) : (
+                <ChevronBottomIcon className="w-3 h-3 text-fg1" />
+              )}
+            </button>
+          </CollapsibleTrigger>
+        </div>
+      </Collapsible>
+    </div>
   );
 }
 

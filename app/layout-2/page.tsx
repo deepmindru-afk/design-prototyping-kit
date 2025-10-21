@@ -9,7 +9,11 @@ import { CodePreviewPanel } from "@/components/custom/code-preview-panel";
 import { CallPreviewPanel } from "@/components/custom/call-preview-panel";
 import SegmentedControl from "@/components/custom/segmented-control";
 import { DeploymentPanel } from "@/components/custom/deployment-panel";
-import { ChainLink3Icon, CodeBracketsIcon } from "../../icons/react";
+import {
+  ChainLink3Icon,
+  CodeBracketsIcon,
+  CloudDownloadIcon,
+} from "../../icons/react";
 import { mockTools } from "@/lib/mock-data";
 import type { HistoryItem } from "@/components/custom/edit-history-panel";
 
@@ -20,7 +24,9 @@ export default function Home() {
   // State management for deployment panel
   const [isDeploymentVisible, setIsDeploymentVisible] = useState(false);
   const [isDeploymentExpanded, setIsDeploymentExpanded] = useState(false);
-  const [deploymentStatus, setDeploymentStatus] = useState<"deploying" | "success">("deploying");
+  const [deploymentStatus, setDeploymentStatus] = useState<
+    "deploying" | "success"
+  >("deploying");
 
   // State management for config panel
   const [config, setConfig] = useState({
@@ -59,16 +65,16 @@ export default function Home() {
 
   // State management for edit history
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
-  
+
   // Function to add new history entry
   const handleAddHistory = (editName: string) => {
     const newHistoryItem: HistoryItem = {
       id: Date.now().toString(),
-      editName,
+      changes: [editName],
       userEmail: "dylan@example.com",
       timestamp: "Just now",
     };
-    
+
     setHistoryItems((prev) => [newHistoryItem, ...prev]);
   };
 
@@ -79,7 +85,7 @@ export default function Home() {
         crumbs={[
           { label: "Pumpkin Spice Latte", href: "#" },
           { label: "Agents", href: "#" },
-          { label: "Sally Scheduler", kind: "id" }
+          { label: "Sally Scheduler", kind: "id" },
         ]}
       >
         {/* Header Actions */}
@@ -90,8 +96,8 @@ export default function Home() {
               current status
             </span>
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-[#28d96c]" />
-              <span className="text-[10px] font-mono uppercase tracking-wide text-[#28d96c] font-bold">
+              <div className="w-1.5 h-1.5 bg-fgSuccess" />
+              <span className="text-[10px] font-mono uppercase tracking-wide text-fgSuccess font-bold">
                 running
               </span>
             </div>
@@ -99,21 +105,12 @@ export default function Home() {
 
           <div className="h-7 w-px bg-separator1" />
 
-          <Button
-            variant="ghost"
-            size="sm"
-          >
-            Convert to code
-            <CodeBracketsIcon className="w-3 h-3 ml-1" />
-            {/* <ChevronDownSmallIcon className="w-3 h-3 ml-1" /> */}
+          <Button variant="secondary" size="sm">
+            <ChainLink3Icon className="w-3 h-3" />
           </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-          >
-            Share agent link
-            <ChainLink3Icon className="w-3 h-3 mr-1" />
+          <Button variant="secondary" size="sm">
+            Download code
+            <CloudDownloadIcon className="w-3 h-3" />
           </Button>
 
           <Button
@@ -155,7 +152,11 @@ export default function Home() {
 
           <motion.div
             layout
-            transition={{ type: "spring" as const, damping: 28, stiffness: 320 }}
+            transition={{
+              type: "spring" as const,
+              damping: 28,
+              stiffness: 320,
+            }}
             className="flex-1 min-h-0"
           >
             <ConfigPanel
@@ -255,10 +256,12 @@ export default function Home() {
           <div className="flex items-center justify-center">
             <SegmentedControl
               value={activePanel}
-              onValueChange={(value) => setActivePanel(value as "preview" | "code")}
+              onValueChange={(value) =>
+                setActivePanel(value as "preview" | "code")
+              }
               options={[
                 { value: "preview", label: "Preview" },
-                { value: "code", label: "Code" }
+                { value: "code", label: "Code" },
               ]}
               className="w-full"
             />
@@ -273,4 +276,3 @@ export default function Home() {
     </div>
   );
 }
-

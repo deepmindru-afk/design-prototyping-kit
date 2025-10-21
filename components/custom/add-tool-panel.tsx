@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { type ToolItem } from "@/lib/mock-data";
-import { Plus, X, ExternalLink } from "lucide-react";
+import { Plus, X, ExternalLink, Trash2 } from "lucide-react";
 import { FoldersIcon } from "@/icons/react";
 
 // TypeScript interfaces
@@ -29,6 +29,7 @@ export interface AddToolPanelProps {
   trigger?: React.ReactNode;
   tool?: ToolItem;
   onSave: (tool: ToolItem) => void;
+  onDelete?: () => void;
   className?: string;
 }
 
@@ -125,6 +126,7 @@ export default function AddToolPanel({
   trigger,
   tool,
   onSave,
+  onDelete,
   className,
 }: AddToolPanelProps) {
   const [open, setOpen] = React.useState(false);
@@ -302,7 +304,7 @@ export default function AddToolPanel({
 
             {/* Headers Section */}
             <div className="flex flex-col gap-2">
-              <div className="flex items-end justify-between">
+              <div className="flex items-end justify-between border-b border-separator1 pb-4">
                 <FieldLabel
                   label="Headers"
                   description="Define headers that will be sent with the request"
@@ -319,7 +321,7 @@ export default function AddToolPanel({
               </div>
               
               {headers.length === 0 ? (
-                <div className="border border-separator1 rounded-md bg-bg2">
+                <div className="bg-bg1">
                   <EmptyState
                     icon={<FoldersIcon className="h-12 w-12 text-fg3" />}
                   />
@@ -344,7 +346,7 @@ export default function AddToolPanel({
 
             {/* Add Keys Section */}
             <div className="flex flex-col gap-2">
-              <div className="flex items-end justify-between">
+              <div className="flex items-end justify-between border-b border-separator1 pb-4">
                 <FieldLabel
                   label="Add keys"
                   description="Define a secret name and key for this tool"
@@ -361,7 +363,7 @@ export default function AddToolPanel({
               </div>
               
               {keys.length === 0 ? (
-                <div className="border border-separator1 rounded-md bg-bg2">
+                <div className="bg-bg1">
                   <EmptyState
                     icon={<FoldersIcon className="h-12 w-12 text-fg3" />}
                   />
@@ -388,14 +390,29 @@ export default function AddToolPanel({
 
         {/* Footer */}
         <div className="border-t border-separator1 px-6 py-4 flex items-center justify-between gap-2 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-0 text-fgAccent1 hover:text-fgAccent1/80 font-semibold text-xs"
-          >
-            View documentation
-            <ExternalLink className="ml-1 h-3 w-3" />
-          </Button>
+          {tool?.isBuiltIn ? (
+            <Button
+              variant="ghost"
+              size="sm"
+            >
+              View documentation
+              <ExternalLink className="ml-1 h-3 w-3" />
+            </Button>
+          ) : tool && !tool.isBuiltIn ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                onDelete?.();
+                setOpen(false);
+              }}
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              Delete tool
+            </Button>
+          ) : (
+            <div />
+          )}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"

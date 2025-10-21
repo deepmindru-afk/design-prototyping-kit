@@ -44,6 +44,13 @@ import {
 import { ProjectPageHeader } from "@/components/custom/project-page-header";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  SelectorCard,
+  SelectorCardGroup,
+} from "@/components/custom/selector-card";
+import AirplaneIcon from "../../icons/react/AirplaneIcon";
+import CalendarIcon from "../../icons/react/Calendar1Icon";
+import BellIcon from "../../icons/react/Bell2Icon";
 
 export default function ComponentExamples() {
   // State for interactive checkboxes
@@ -54,6 +61,11 @@ export default function ComponentExamples() {
   
   // State for select
   const [selectValue, setSelectValue] = useState<string>("");
+
+  // State for selector cards
+  const [largeCardValue, setLargeCardValue] = useState<string>("option-1");
+  const [smallCardValue, setSmallCardValue] = useState<string>("option-2");
+  const [verticalCardValue, setVerticalCardValue] = useState<string>("option-1");
   return (
     <div className="h-screen w-full flex flex-col bg-bg0">
       {/* Sticky Header */}
@@ -278,6 +290,114 @@ export default function ComponentExamples() {
           </TabsContent>
         </Tabs>
       </div>
+
+          {/* Selector Card - Large (Horizontal) section */}
+          <div className="flex flex-col gap-4 w-full">
+            <h2 className="text-lg font-bold">Selector Card - Large (Horizontal)</h2>
+            <Separator />
+            <SelectorCardGroup
+              value={largeCardValue}
+              onValueChange={setLargeCardValue}
+            >
+              <SelectorCard
+                value="option-1"
+                title="Flight Mode"
+                description="Enable airplane mode for all connections"
+                icon={<AirplaneIcon className="w-6 h-6" />}
+                size="large"
+              />
+              <SelectorCard
+                value="option-2"
+                title="Schedule"
+                description="Set up automatic scheduling"
+                icon={<CalendarIcon className="w-6 h-6" />}
+                size="large"
+              />
+              <SelectorCard
+                value="option-3"
+                title="Notifications"
+                description="Manage all notification preferences"
+                icon={<BellIcon className="w-6 h-6" />}
+                size="large"
+              />
+            </SelectorCardGroup>
+            {largeCardValue && (
+              <p className="text-xs text-fg3">
+                Selected: {largeCardValue}
+              </p>
+            )}
+          </div>
+
+          {/* Selector Card - Small section */}
+          <div className="flex flex-col gap-4 w-full">
+            <h2 className="text-lg font-bold">Selector Card - Small (Horizontal)</h2>
+            <Separator />
+            <SelectorCardGroup
+              value={smallCardValue}
+              onValueChange={setSmallCardValue}
+            >
+              <SelectorCard
+                value="option-1"
+                title="Camera"
+                description="Access camera settings"
+                size="small"
+              />
+              <SelectorCard
+                value="option-2"
+                title="Library"
+                description="Browse your photo library"
+                size="small"
+              />
+              <SelectorCard
+                value="option-3"
+                title="Messages"
+                description="View and send messages"
+                size="small"
+              />
+            </SelectorCardGroup>
+            {smallCardValue && (
+              <p className="text-xs text-fg3">
+                Selected: {smallCardValue}
+              </p>
+            )}
+          </div>
+
+          {/* Selector Card - Small (Vertical) section */}
+          <div className="flex flex-col gap-4 w-full">
+            <h2 className="text-lg font-bold">Selector Card - Small (Vertical)</h2>
+            <Separator />
+            <div className="max-w-md">
+              <SelectorCardGroup
+                value={verticalCardValue}
+                onValueChange={setVerticalCardValue}
+                direction="vertical"
+              >
+                <SelectorCard
+                  value="option-1"
+                  title="Camera"
+                  description="Access camera settings"
+                  size="small"
+                />
+                <SelectorCard
+                  value="option-2"
+                  title="Library"
+                  description="Browse your photo library"
+                  size="small"
+                />
+                <SelectorCard
+                  value="option-3"
+                  title="Messages"
+                  description="View and send messages"
+                  size="small"
+                />
+              </SelectorCardGroup>
+            </div>
+            {verticalCardValue && (
+              <p className="text-xs text-fg3">
+                Selected: {verticalCardValue}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

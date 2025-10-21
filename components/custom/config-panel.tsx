@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -21,13 +20,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ChartContainer } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
-import { ChevronDown, Plus, Sparkles, Pencil } from "lucide-react";
+import { ChevronDown, Plus, Sparkles, Pencil, Maximize2, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import VoiceSelector from "@/components/custom/voice-selector";
 import SelectionDropdown from "@/components/custom/selection-dropdown";
-import SegmentedControl from "@/components/custom/segmented-control";
 import EditHistoryPanel from "@/components/custom/edit-history-panel";
 import {
   mockLanguages,
@@ -48,6 +57,10 @@ import { CircleCheckIcon, ArrowHistoryClock } from "../../icons/react";
 import AddToolPanel from "@/components/custom/add-tool-panel";
 import CollapsibleSection from "@/components/custom/collapsible-section";
 import type { HistoryItem } from "@/components/custom/edit-history-panel";
+import {
+  SelectorCard,
+  SelectorCardGroup,
+} from "@/components/custom/selector-card";
 
 // TypeScript interfaces
 export interface ConfigPanelProps {
@@ -97,45 +110,126 @@ type SaveState = "idle" | "saving" | "saved";
 interface StatDisplayProps {
   label: string;
   value: string;
-  percentage: number;
+  sttPercentage?: number;
+  ttsPercentage?: number;
+  llmPercentage?: number;
+  sttMs?: number;
+  ttsMs?: number;
+  llmMs?: number;
 }
 
-function StatDisplay({ label, value, percentage }: StatDisplayProps) {
+function StatDisplay({
+  label,
+  value,
+  sttPercentage = 33,
+  ttsPercentage = 33,
+  llmPercentage = 34,
+  sttMs,
+  ttsMs,
+  llmMs,
+}: StatDisplayProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const isLatency = label.toLowerCase().includes("latency");
+
   const chartData = [
-    { name: "filled", value: percentage },
-    { name: "empty", value: 100 - percentage },
+    { name: "stt", value: sttPercentage },
+    { name: "tts", value: ttsPercentage },
+    { name: "llm", value: llmPercentage },
   ];
 
   const chartConfig = {
-    filled: { color: "#1fd5f9" },
-    empty: { color: "#202020" },
+    stt: { color: "#1FD5F9", label: "Speech-to-Text" }, // STT - cyan
+    tts: { color: "#EF8B01", label: "Text-to-Speech" }, // TTS - orange
+    llm: { color: "#DC85FF", label: "Language Model" }, // LLM - purple
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <ChartContainer config={chartConfig} className="h-[34px] w-[34px]">
-        <PieChart>
-          <Pie
-            data={chartData}
-            dataKey="value"
-            nameKey="name"
-            innerRadius={10}
-            outerRadius={17}
-            strokeWidth={0}
+    <div className="flex items-center gap-2">
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
+            className="cursor-pointer"
           >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={
-                  entry.name === "filled"
-                    ? chartConfig.filled.color
-                    : chartConfig.empty.color
-                }
-              />
-            ))}
-          </Pie>
-        </PieChart>
-      </ChartContainer>
+            <ChartContainer config={chartConfig} className="h-[32px] w-[32px]">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={14}
+                  outerRadius={16}
+                  strokeWidth={0}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        chartConfig[entry.name as keyof typeof chartConfig]
+                          .color
+                      }
+                    />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          </div>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-64 p-3"
+          side="bottom"
+          align="start"
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold text-fg1 mb-1">
+              {isLatency ? "Latency" : "Cost"} Breakdown
+            </p>
+            {chartData.map((entry) => {
+              const msValue =
+                entry.name === "stt"
+                  ? sttMs
+                  : entry.name === "tts"
+                  ? ttsMs
+                  : llmMs;
+              const displayValue =
+                isLatency && msValue !== undefined
+                  ? `${msValue}ms`
+                  : `${entry.value}%`;
+
+              return (
+                <div
+                  key={entry.name}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-2 flex-1">
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor:
+                          chartConfig[entry.name as keyof typeof chartConfig]
+                            .color,
+                      }}
+                    />
+                    <span className="text-xs text-fg2">
+                      {
+                        chartConfig[entry.name as keyof typeof chartConfig]
+                          .label
+                      }
+                    </span>
+                  </div>
+                  <span className="text-xs font-semibold text-fg1 tabular-nums">
+                    {displayValue}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
       <div className="font-mono text-[10px] font-bold uppercase tracking-[0.8px] leading-[1.5] whitespace-pre">
         <p className="text-fg3 mb-0">{label}</p>
         <p className="text-fg1">{value}</p>
@@ -153,10 +247,25 @@ interface TopBarProps {
 
 function TopBar({ saveState, historyItems, currentUserEmail }: TopBarProps) {
   return (
-    <div className="flex items-center gap-4 px-4 py-4 w-full">
-      <StatDisplay label="Est. latency:" value="2,521ms" percentage={65} />
+    <div className="flex items-center gap-4 p-4 w-full">
+      <StatDisplay
+        label="Est. latency:"
+        value="2,521ms"
+        sttPercentage={25}
+        ttsPercentage={35}
+        llmPercentage={40}
+        sttMs={630}
+        ttsMs={882}
+        llmMs={1009}
+      />
       <Separator orientation="vertical" className="h-7" />
-      <StatDisplay label="Est. cost" value="$0.16/min" percentage={45} />
+      <StatDisplay
+        label="Est. cost"
+        value="$0.16/min"
+        sttPercentage={15}
+        ttsPercentage={30}
+        llmPercentage={55}
+      />
       <div className="flex-1 flex items-center justify-end gap-2">
         {saveState === "saving" && (
           <p className="text-xs font-normal italic text-fg3">
@@ -172,10 +281,7 @@ function TopBar({ saveState, historyItems, currentUserEmail }: TopBarProps) {
           historyItems={historyItems}
           currentUserEmail={currentUserEmail}
           trigger={
-            <Button
-              variant="secondary"
-              size="sm"
-            >
+            <Button variant="secondary" size="sm">
               Edit history
               <ArrowHistoryClock className="ml-1 h-3 w-3" />
             </Button>
@@ -273,13 +379,22 @@ export default function ConfigPanel({
 }: ConfigPanelProps) {
   // Save state management
   const [saveState, setSaveState] = React.useState<SaveState>("idle");
-  const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
+  const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
 
   // History tracking
-  const [changedFields, setChangedFields] = React.useState<Set<string>>(new Set<string>());
-  const [pendingHistoryDescription, setPendingHistoryDescription] = React.useState<string | null>(null);
-  const historyTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [changedFields, setChangedFields] = React.useState<Set<string>>(
+    new Set<string>()
+  );
+  const [pendingHistoryDescription, setPendingHistoryDescription] =
+    React.useState<string | null>(null);
+  const historyTimerRef = React.useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
 
   // Custom voice/model mode state
   const [useVoiceCustomMode, setUseVoiceCustomMode] = React.useState(false);
@@ -289,19 +404,22 @@ export default function ConfigPanel({
   const [customModelProvider, setCustomModelProvider] = React.useState("");
   const [customModelId, setCustomModelId] = React.useState("");
 
+  // Expanded instructions modal state
+  const [isInstructionsExpanded, setIsInstructionsExpanded] = React.useState(false);
+
   // Handle field changes and trigger save state
   const handleFieldChange = React.useCallback((fieldName: string) => {
     // Update save state
     setSaveState("saving");
-    
+
     // Clear existing timers
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-    
+
     // Transition to "saved" after 1.5 seconds
     saveTimerRef.current = setTimeout(() => {
       setSaveState("saved");
-      
+
       // Transition back to "idle" after another 1.5 seconds
       savedTimerRef.current = setTimeout(() => {
         setSaveState("idle");
@@ -310,10 +428,10 @@ export default function ConfigPanel({
 
     // Track changed field for history
     setChangedFields((prev) => new Set<string>(prev).add(fieldName));
-    
+
     // Clear existing history timer
     if (historyTimerRef.current) clearTimeout(historyTimerRef.current);
-    
+
     // Create history entry after 3 seconds of inactivity
     historyTimerRef.current = setTimeout(() => {
       setChangedFields((currentFields) => {
@@ -321,7 +439,7 @@ export default function ConfigPanel({
           // Generate description based on changed fields
           const fieldArray = Array.from(currentFields);
           const fieldNames = fieldArray.map((f) => fieldLabels[f] || f);
-          
+
           let description: string;
           if (fieldNames.length === 1) {
             description = `Updated ${fieldNames[0]}`;
@@ -332,7 +450,7 @@ export default function ConfigPanel({
             const otherFields = fieldNames.slice(0, -1).join(", ");
             description = `Updated ${otherFields}, and ${lastField}`;
           }
-          
+
           // Set pending description to trigger useEffect
           setPendingHistoryDescription(description);
         }
@@ -452,8 +570,8 @@ export default function ConfigPanel({
       )}
     >
       {/* Top Bar */}
-      <TopBar 
-        saveState={saveState} 
+      <TopBar
+        saveState={saveState}
         historyItems={historyItems}
         currentUserEmail={currentUserEmail}
       />
@@ -464,23 +582,14 @@ export default function ConfigPanel({
         className="flex flex-col flex-1 min-h-0 border-0"
       >
         <TabsList className="w-full justify-start rounded-none border-b border-separator1 bg-transparent px-4 h-auto flex-shrink-0 gap-2">
-          <TabsTrigger
-            value="instructions"
-            className="cursor-pointer"
-          >
-            Identity
+          <TabsTrigger value="instructions" className="cursor-pointer">
+            Instructions
           </TabsTrigger>
-          <TabsTrigger
-            value="voice"
-            className="cursor-pointer"
-          >
+          <TabsTrigger value="voice" className="cursor-pointer">
             Models & Voice
           </TabsTrigger>
-          <TabsTrigger
-            value="behavior"
-            className="cursor-pointer"
-          >
-            Behavior
+          <TabsTrigger value="behavior" className="cursor-pointer">
+            Actions
           </TabsTrigger>
         </TabsList>
 
@@ -518,13 +627,17 @@ export default function ConfigPanel({
                       <Plus className="h-3 w-3 mr-1" />
                       Add metadata
                     </Button>
-                    <Separator orientation="vertical" className="h-8 border-separator2" />
+                    <Separator
+                      orientation="vertical"
+                      className="h-8 border-separator2"
+                    />
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-7 w-7 p-0 hover:bg-bg2"
+                      onClick={() => setIsInstructionsExpanded(true)}
                     >
-                      <Sparkles className="h-3 w-3 text-fg1" />
+                      <Maximize2 className="h-3 w-3 text-fg1" />
                     </Button>
                   </>
                 }
@@ -535,6 +648,38 @@ export default function ConfigPanel({
                 className="flex-1 min-h-0 border-separator1 bg-transparent text-fg1 text-xs leading-[1.5] resize-none"
               />
             </div>
+
+            {/* Expanded Instructions Modal */}
+            <Dialog open={isInstructionsExpanded} onOpenChange={setIsInstructionsExpanded}>
+              <DialogContent className="max-w-4xl w-full h-[90vh] flex flex-col p-0 gap-0">
+                <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <DialogTitle className="text-lg font-semibold text-fg1">
+                      Instructions
+                    </DialogTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-bg2"
+                      onClick={() => setIsInstructionsExpanded(false)}
+                    >
+                      <X className="h-4 w-4 text-fg1" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-fg3 font-normal mt-1">
+                    Define your agent's personality, tone, and behavior guidelines
+                  </p>
+                </DialogHeader>
+                <div className="flex-1 min-h-0 px-6 pb-6">
+                  <Textarea
+                    value={systemInstructions}
+                    onChange={(e) => handleSystemInstructionsChange(e.target.value)}
+                    className="w-full h-full border-separator1 bg-transparent text-fg1 text-sm leading-[1.6] resize-none focus-visible:ring-1"
+                    placeholder="Enter detailed instructions for your agent..."
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Welcome Message Field */}
             <div className="flex flex-col gap-2 bg-bg1 rounded-md">
@@ -549,25 +694,57 @@ export default function ConfigPanel({
                   onCheckedChange={handleEnableGreetingChange}
                 />
               </div>
-              
-              {/* Radio Group and Add Variable Button */}
-              <div className="flex items-center justify-between">
-                <RadioGroup
-                  value={greetingType}
-                  onValueChange={(value) => handleGreetingTypeChange(value as "script" | "prompt")}
-                  className="flex items-center gap-2"
-                  disabled={!enableGreeting}
-                >
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="script" className="border-separator2" />
-                    <Label className={cn("text-sm font-normal cursor-pointer", enableGreeting ? "text-fg1" : "text-fg3")}>Script</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="prompt" className="border-separator2" />
-                    <Label className={cn("text-sm font-normal cursor-pointer", enableGreeting ? "text-fg1" : "text-fg3")}>Prompt</Label>
-                  </div>
-                </RadioGroup>
-                
+
+              {/* Selector Cards */}
+              <SelectorCardGroup
+                value={greetingType}
+                onValueChange={(value) =>
+                  handleGreetingTypeChange(value as "script" | "prompt")
+                }
+                direction="horizontal"
+                className="w-full"
+              >
+                <SelectorCard
+                  value="script"
+                  title="Script"
+                  description="Exact text the Agent will speak"
+                  size="small"
+                  className={cn(
+                    !enableGreeting && "opacity-50 pointer-events-none"
+                  )}
+                />
+                <SelectorCard
+                  value="prompt"
+                  title="Prompt"
+                  description="Contextual greeting based on your instructions"
+                  size="small"
+                  className={cn(
+                    !enableGreeting && "opacity-50 pointer-events-none"
+                  )}
+                />
+              </SelectorCardGroup>
+
+              {/* Controls Row: Checkbox and Add Metadata Button */}
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={allowInterrupt}
+                    onCheckedChange={(checked) =>
+                      handleAllowInterruptChange(checked as boolean)
+                    }
+                    className="border-separator2"
+                    disabled={!enableGreeting}
+                  />
+                  <Label
+                    className={cn(
+                      "text-sm font-normal cursor-pointer",
+                      enableGreeting ? "text-fg1" : "text-fg3"
+                    )}
+                  >
+                    Allow users to interrupt
+                  </Label>
+                </div>
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -578,7 +755,7 @@ export default function ConfigPanel({
                   Add metadata
                 </Button>
               </div>
-              
+
               {/* Text Input */}
               <Textarea
                 value={welcomeMessage}
@@ -586,21 +763,6 @@ export default function ConfigPanel({
                 className="border-separator1 bg-transparent text-fg1 text-xs h-[150px] px-3 py-1.5 resize-none"
                 disabled={!enableGreeting}
               />
-              
-              {/* Allow Interrupt Checkbox */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={allowInterrupt}
-                  onCheckedChange={(checked) =>
-                    handleAllowInterruptChange(checked as boolean)
-                  }
-                  className="border-separator2"
-                  disabled={!enableGreeting}
-                />
-                <Label className={cn("text-sm font-normal cursor-pointer", enableGreeting ? "text-fg1" : "text-fg3")}>
-                  Allow users to interrupt
-                </Label>
-              </div>
             </div>
           </div>
         </TabsContent>
@@ -640,16 +802,27 @@ export default function ConfigPanel({
                 label="Pipeline mode"
                 description="Choose how your agent processes conversations"
               />
-              <SegmentedControl
+              <SelectorCardGroup
                 value={pipelineMode}
                 onValueChange={(val) =>
                   handlePipelineModeChange(val as "pipeline" | "realtime")
                 }
-                options={[
-                  { value: "pipeline", label: "Standard" },
-                  { value: "realtime", label: "Realtime" },
-                ]}
-              />
+                direction="horizontal"
+                className="w-full"
+              >
+                <SelectorCard
+                  value="pipeline"
+                  title="Standard"
+                  description="Separate STT, LLM, and TTS processing"
+                  size="small"
+                />
+                <SelectorCard
+                  value="realtime"
+                  title="Realtime"
+                  description="End-to-end multimodal conversation"
+                  size="small"
+                />
+              </SelectorCardGroup>
             </div>
 
             {/* Standard Pipeline View */}
@@ -700,7 +873,10 @@ export default function ConfigPanel({
                   ) : (
                     <>
                       <div className="flex gap-2">
-                        <Select value={customVoiceProvider} onValueChange={setCustomVoiceProvider}>
+                        <Select
+                          value={customVoiceProvider}
+                          onValueChange={setCustomVoiceProvider}
+                        >
                           <SelectTrigger className="flex-1 border-separator1 bg-bg2 text-fg1 text-xs h-[30px] px-2">
                             <SelectValue placeholder="Select provider" />
                           </SelectTrigger>
@@ -754,7 +930,10 @@ export default function ConfigPanel({
                   ) : (
                     <>
                       <div className="flex gap-2">
-                        <Select value={customModelProvider} onValueChange={setCustomModelProvider}>
+                        <Select
+                          value={customModelProvider}
+                          onValueChange={setCustomModelProvider}
+                        >
                           <SelectTrigger className="flex-1 border-separator1 bg-bg2 text-fg1 text-xs h-[30px] px-2">
                             <SelectValue placeholder="Select provider" />
                           </SelectTrigger>
@@ -789,7 +968,10 @@ export default function ConfigPanel({
                     label="Speech-to-text (STT)"
                     description="Converts caller speech into text for processing"
                   />
-                  <Select value={sttService} onValueChange={handleSttServiceChange}>
+                  <Select
+                    value={sttService}
+                    onValueChange={handleSttServiceChange}
+                  >
                     <SelectTrigger className="w-full border-separator1 bg-bg2 text-fg1 text-xs h-[30px] px-2">
                       <SelectValue />
                     </SelectTrigger>
@@ -814,7 +996,10 @@ export default function ConfigPanel({
                     label="Select model"
                     description="The AI model that handles both conversation and voice generation"
                   />
-                  <Select value={realtimeModel} onValueChange={handleRealtimeModelChange}>
+                  <Select
+                    value={realtimeModel}
+                    onValueChange={handleRealtimeModelChange}
+                  >
                     <SelectTrigger className="w-full border-separator1 bg-bg2 text-fg1 text-xs h-[30px] px-2">
                       <SelectValue />
                     </SelectTrigger>
@@ -875,7 +1060,10 @@ export default function ConfigPanel({
                   ) : (
                     <>
                       <div className="flex gap-2">
-                        <Select value={customVoiceProvider} onValueChange={setCustomVoiceProvider}>
+                        <Select
+                          value={customVoiceProvider}
+                          onValueChange={setCustomVoiceProvider}
+                        >
                           <SelectTrigger className="flex-1 border-separator1 bg-bg2 text-fg1 text-xs h-[30px] px-2">
                             <SelectValue placeholder="Select provider" />
                           </SelectTrigger>
@@ -909,7 +1097,10 @@ export default function ConfigPanel({
         </TabsContent>
 
         {/* Behavior Tab Content */}
-        <TabsContent value="behavior" className="flex-1 min-h-0 overflow-auto m-0">
+        <TabsContent
+          value="behavior"
+          className="flex-1 min-h-0 overflow-auto m-0"
+        >
           <div className="flex flex-col">
             {/* Tools Section - Collapsible */}
             <CollapsibleSection
@@ -952,7 +1143,9 @@ export default function ConfigPanel({
                                   );
                                   handleToolsChange(updatedTools);
                                 }}
-                                
+                                onDelete={() => {
+                                  // Built-in tools don't get deleted, but keeping for consistency
+                                }}
                                 trigger={
                                   <Button
                                     variant="ghost"
@@ -968,7 +1161,9 @@ export default function ConfigPanel({
                               checked={tool.enabled}
                               onCheckedChange={(checked) => {
                                 const updatedTools = tools.map((t) =>
-                                  t.id === tool.id ? { ...t, enabled: checked } : t
+                                  t.id === tool.id
+                                    ? { ...t, enabled: checked }
+                                    : t
                                 );
                                 handleToolsChange(updatedTools);
                               }}
@@ -995,7 +1190,6 @@ export default function ConfigPanel({
                         const updatedTools = [...tools, newTool];
                         handleToolsChange(updatedTools);
                       }}
-                      
                       trigger={
                         <Button
                           variant="ghost"
@@ -1045,7 +1239,12 @@ export default function ConfigPanel({
                                       );
                                       handleToolsChange(updatedTools);
                                     }}
-                                    
+                                    onDelete={() => {
+                                      const updatedTools = tools.filter(
+                                        (t) => t.id !== tool.id
+                                      );
+                                      handleToolsChange(updatedTools);
+                                    }}
                                     trigger={
                                       <Button
                                         variant="ghost"
@@ -1061,7 +1260,9 @@ export default function ConfigPanel({
                                   checked={tool.enabled}
                                   onCheckedChange={(checked) => {
                                     const updatedTools = tools.map((t) =>
-                                      t.id === tool.id ? { ...t, enabled: checked } : t
+                                      t.id === tool.id
+                                        ? { ...t, enabled: checked }
+                                        : t
                                     );
                                     handleToolsChange(updatedTools);
                                   }}

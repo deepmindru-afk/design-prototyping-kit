@@ -4,13 +4,18 @@ import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-import { LoaderIcon, ChevronTopSmallIcon, CircleCheckIcon, CircleXIcon } from "@/icons/react";
+import {
+  LoaderIcon,
+  ChevronTopSmallIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+} from "@/icons/react";
 import { Button } from "@/components/ui/button";
 import { BackgroundPattern } from "@/components/custom/BackgroundPattern";
 
 // Helper to get computed CSS variable value
 function getCssVariable(variableName: string): string {
-  if (typeof window === 'undefined') return '';
+  if (typeof window === "undefined") return "";
   return getComputedStyle(document.documentElement)
     .getPropertyValue(variableName)
     .trim();
@@ -32,43 +37,146 @@ interface DeploymentLog {
 
 // Mock deployment logs matching the Figma design
 const mockDeploymentLogs: DeploymentLog[] = [
-  { timestamp: "2025-06-17T19:34:55.310Z", message: "[+] Building 83.1s (20/20) FINISHED" },
-  { timestamp: "2025-06-17T19:34:55.574Z", message: "=> [ 1/20] FROM docker.io/library/node:18-alpine" },
-  { timestamp: "2025-06-17T19:34:55.574Z", message: "=> => resolve docker.io/library/node:18-alpine@sha256:4b..." },
-  { timestamp: "2025-06-17T19:34:55.574Z", message: "=> => sha256:4bfbe15b3e0133f5e1103c9cf6d7f..." },
-  { timestamp: "2025-06-17T19:34:55.680Z", message: "=> => sha256:8a7d8e3b2c9f6e1a4d5c9b8f7e6d5..." },
-  { timestamp: "2025-06-17T19:34:55.780Z", message: "=> => extracting sha256:4bfbe15b3e0133f5e1103c..." },
-  { timestamp: "2025-06-17T19:34:55.890Z", message: "=> => extracting sha256:8a7d8e3b2c9f6e1a4d5c9..." },
-  { timestamp: "2025-06-17T19:34:56.010Z", message: "=> [ 2/20] RUN adduser --disabled-password --gecos '' appuser" },
-  { timestamp: "2025-06-17T19:34:56.120Z", message: "=> [ 3/20] RUN apt-get update && apt-get install -y curl" },
-  { timestamp: "2025-06-17T19:34:56.230Z", message: "=> [ 4/20] RUN apt-get install -y build-essential" },
-  { timestamp: "2025-06-17T19:34:56.340Z", message: "=> [ 5/20] RUN apt-get install -y python3 python3-pip" },
-  { timestamp: "2025-06-17T19:34:56.450Z", message: "=> [ 6/20] RUN mkdir -p /home/appuser/app" },
-  { timestamp: "2025-06-17T19:34:56.560Z", message: "=> [ 7/20] RUN chown -R appuser:appuser /home/appuser" },
-  { timestamp: "2025-06-17T19:34:56.670Z", message: "=> [ 8/20] WORKDIR /home/appuser/app" },
-  { timestamp: "2025-06-17T19:34:56.780Z", message: "=> [ 9/20] COPY package*.json ./" },
-  { timestamp: "2025-06-17T19:34:56.890Z", message: "=> [10/20] RUN npm ci --only=production" },
-  { timestamp: "2025-06-17T19:34:57.000Z", message: "=> [11/20] RUN npm cache clean --force" },
-  { timestamp: "2025-06-17T19:34:57.110Z", message: "=> [12/20] COPY requirements.txt ." },
-  { timestamp: "2025-06-17T19:34:57.220Z", message: "=> [13/20] RUN pip install --no-cache-dir -r requirements.txt" },
-  { timestamp: "2025-06-17T19:34:57.330Z", message: "=> [14/20] COPY --chown=appuser:appuser . ." },
-  { timestamp: "2025-06-17T19:34:57.440Z", message: "=> [15/20] RUN chmod +x /home/appuser/app/entrypoint.sh" },
+  {
+    timestamp: "2025-06-17T19:34:55.310Z",
+    message: "[+] Building 83.1s (20/20) FINISHED",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.574Z",
+    message: "=> [ 1/20] FROM docker.io/library/node:18-alpine",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.574Z",
+    message: "=> => resolve docker.io/library/node:18-alpine@sha256:4b...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.574Z",
+    message: "=> => sha256:4bfbe15b3e0133f5e1103c9cf6d7f...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.680Z",
+    message: "=> => sha256:8a7d8e3b2c9f6e1a4d5c9b8f7e6d5...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.780Z",
+    message: "=> => extracting sha256:4bfbe15b3e0133f5e1103c...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:55.890Z",
+    message: "=> => extracting sha256:8a7d8e3b2c9f6e1a4d5c9...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.010Z",
+    message: "=> [ 2/20] RUN adduser --disabled-password --gecos '' appuser",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.120Z",
+    message: "=> [ 3/20] RUN apt-get update && apt-get install -y curl",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.230Z",
+    message: "=> [ 4/20] RUN apt-get install -y build-essential",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.340Z",
+    message: "=> [ 5/20] RUN apt-get install -y python3 python3-pip",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.450Z",
+    message: "=> [ 6/20] RUN mkdir -p /home/appuser/app",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.560Z",
+    message: "=> [ 7/20] RUN chown -R appuser:appuser /home/appuser",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.670Z",
+    message: "=> [ 8/20] WORKDIR /home/appuser/app",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.780Z",
+    message: "=> [ 9/20] COPY package*.json ./",
+  },
+  {
+    timestamp: "2025-06-17T19:34:56.890Z",
+    message: "=> [10/20] RUN npm ci --only=production",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.000Z",
+    message: "=> [11/20] RUN npm cache clean --force",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.110Z",
+    message: "=> [12/20] COPY requirements.txt .",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.220Z",
+    message: "=> [13/20] RUN pip install --no-cache-dir -r requirements.txt",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.330Z",
+    message: "=> [14/20] COPY --chown=appuser:appuser . .",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.440Z",
+    message: "=> [15/20] RUN chmod +x /home/appuser/app/entrypoint.sh",
+  },
   { timestamp: "2025-06-17T19:34:57.550Z", message: "=> [16/20] USER appuser" },
   { timestamp: "2025-06-17T19:34:57.660Z", message: "=> [17/20] EXPOSE 8080" },
-  { timestamp: "2025-06-17T19:34:57.770Z", message: "=> [18/20] ENV NODE_ENV=production" },
-  { timestamp: "2025-06-17T19:34:57.880Z", message: "=> [19/20] HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8080/health" },
-  { timestamp: "2025-06-17T19:34:57.990Z", message: "=> [20/20] CMD ['sh', 'entrypoint.sh']" },
+  {
+    timestamp: "2025-06-17T19:34:57.770Z",
+    message: "=> [18/20] ENV NODE_ENV=production",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.880Z",
+    message:
+      "=> [19/20] HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8080/health",
+  },
+  {
+    timestamp: "2025-06-17T19:34:57.990Z",
+    message: "=> [20/20] CMD ['sh', 'entrypoint.sh']",
+  },
   { timestamp: "2025-06-17T19:34:58.100Z", message: "=> exporting to image" },
-  { timestamp: "2025-06-17T19:34:58.210Z", message: "=> => exporting layers 0/5" },
-  { timestamp: "2025-06-17T19:34:58.320Z", message: "=> => exporting layers 3/5" },
-  { timestamp: "2025-06-17T19:34:58.430Z", message: "=> => exporting layers 5/5 done" },
-  { timestamp: "2025-06-17T19:34:58.540Z", message: "=> => writing image sha256:abc123def456789..." },
-  { timestamp: "2025-06-17T19:34:58.650Z", message: "=> => naming to docker.io/library/sally-agent:latest" },
-  { timestamp: "2025-06-17T19:34:58.760Z", message: "=> pushing image to registry" },
-  { timestamp: "2025-06-17T19:34:58.870Z", message: "=> => pushing layer sha256:4bfbe15b3e..." },
-  { timestamp: "2025-06-17T19:34:58.980Z", message: "=> => pushing layer sha256:8a7d8e3b2c..." },
-  { timestamp: "2025-06-17T19:34:59.090Z", message: "✓ Deployment manifest created" },
-  { timestamp: "2025-06-17T19:34:59.200Z", message: "✓ Container registry updated" },
+  {
+    timestamp: "2025-06-17T19:34:58.210Z",
+    message: "=> => exporting layers 0/5",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.320Z",
+    message: "=> => exporting layers 3/5",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.430Z",
+    message: "=> => exporting layers 5/5 done",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.540Z",
+    message: "=> => writing image sha256:abc123def456789...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.650Z",
+    message: "=> => naming to docker.io/library/sally-agent:latest",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.760Z",
+    message: "=> pushing image to registry",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.870Z",
+    message: "=> => pushing layer sha256:4bfbe15b3e...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:58.980Z",
+    message: "=> => pushing layer sha256:8a7d8e3b2c...",
+  },
+  {
+    timestamp: "2025-06-17T19:34:59.090Z",
+    message: "✓ Deployment manifest created",
+  },
+  {
+    timestamp: "2025-06-17T19:34:59.200Z",
+    message: "✓ Container registry updated",
+  },
   { timestamp: "2025-06-17T19:34:59.310Z", message: "✓ Health checks passed" },
 ];
 
@@ -88,13 +196,15 @@ export function DeploymentPanel({
 }: DeploymentPanelProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const successContentRef = React.useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [visibleLogs, setVisibleLogs] = React.useState<DeploymentLog[]>([]);
   const [containerWidth, setContainerWidth] = React.useState(0);
   const [triggerRipple, setTriggerRipple] = React.useState(false);
-  const [successColor, setSuccessColor] = React.useState('#4ade80'); // Default fallback
+  const [successColor, setSuccessColor] = React.useState("#4ade80"); // Default fallback
+  const [successHeight, setSuccessHeight] = React.useState(60); // Dynamic success height
 
   // Handle client-side mounting
   React.useEffect(() => {
@@ -104,31 +214,32 @@ export function DeploymentPanel({
   // Measure container width for BackgroundPattern and read success color
   React.useEffect(() => {
     if (!mounted) return;
-    
+
     if (containerRef.current) {
       setContainerWidth(containerRef.current.offsetWidth);
     }
-    
+
     // Read the success color from CSS variables (updates on theme change)
-    const color = getCssVariable('--fgSuccess');
+    const color = getCssVariable("--fgSuccess");
     if (color) {
       setSuccessColor(color);
     }
-    
+
     const handleResize = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [mounted, resolvedTheme]); // Re-run when mounted or theme changes
 
   // Auto-scroll to bottom when logs update
   React.useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
     }
   }, [visibleLogs]);
 
@@ -154,17 +265,36 @@ export function DeploymentPanel({
     }
   }, [status, prefersReducedMotion]);
 
+  // Measure success content height dynamically
+  React.useEffect(() => {
+    if (status === "success" && successContentRef.current) {
+      const measureHeight = () => {
+        if (successContentRef.current) {
+          const height = successContentRef.current.offsetHeight;
+          setSuccessHeight(height);
+        }
+      };
+
+      // Initial measurement
+      measureHeight();
+
+      // Remeasure on window resize
+      window.addEventListener("resize", measureHeight);
+      return () => window.removeEventListener("resize", measureHeight);
+    }
+  }, [status]);
+
   // Progressive log streaming animation
   React.useEffect(() => {
     if (status === "deploying") {
       setVisibleLogs([]); // Reset logs
-      
+
       // If reduced motion, show all logs immediately
       if (prefersReducedMotion) {
         setVisibleLogs(mockDeploymentLogs);
         return;
       }
-      
+
       // Progressive reveal for full motion
       let currentIndex = 0;
       const timeouts: NodeJS.Timeout[] = [];
@@ -176,7 +306,7 @@ export function DeploymentPanel({
             setVisibleLogs((prev) => [...prev, logToAdd]);
           }
           currentIndex++;
-          
+
           // Variable timing for realism (150-300ms range)
           const delay = 150 + Math.random() * 150;
           const timeout = setTimeout(revealNextLog, delay);
@@ -195,45 +325,47 @@ export function DeploymentPanel({
 
   const collapsedHeight = 150;
   const expandedHeight = 350;
-  const successHeight = 60;
 
   // Determine current height based on status
-  const currentHeight = status === "success" 
-    ? successHeight 
-    : (isExpanded ? expandedHeight : collapsedHeight);
+  const currentHeight =
+    status === "success"
+      ? successHeight
+      : isExpanded
+      ? expandedHeight
+      : collapsedHeight;
 
   // Animation variants for panel entrance/exit
   const panelVariants = {
-    initial: { 
-      y: -20, 
-      opacity: 0, 
-      scale: prefersReducedMotion ? 1 : 0.98 
+    initial: {
+      y: -20,
+      opacity: 0,
+      scale: prefersReducedMotion ? 1 : 0.98,
     },
-    animate: { 
-      y: 0, 
-      opacity: 1, 
+    animate: {
+      y: 0,
+      opacity: 1,
       scale: 1,
-      height: currentHeight
+      height: currentHeight,
     },
-    exit: { 
-      opacity: 0 
-    }
+    exit: {
+      opacity: 0,
+    },
   };
 
   // Spring transition for panel
-  const panelTransition = prefersReducedMotion 
+  const panelTransition = prefersReducedMotion
     ? { duration: 0.2, ease: [0.0, 0.0, 0.2, 1] as const } // ease-out
-    : { 
-        type: "spring" as const, 
-        damping: 28, 
+    : {
+        type: "spring" as const,
+        damping: 28,
         stiffness: 320,
-        height: { type: "spring" as const, damping: 30, stiffness: 350 }
+        height: { type: "spring" as const, damping: 30, stiffness: 350 },
       };
 
   // Instant exit transition for snappy close behavior
-  const exitTransition = { 
-    duration: 0.05, 
-    ease: [0.0, 0.0, 0.2, 1] as const 
+  const exitTransition = {
+    duration: 0.05,
+    ease: [0.0, 0.0, 0.2, 1] as const,
   };
 
   // Success icon animation variants
@@ -241,7 +373,7 @@ export function DeploymentPanel({
     initial: { scale: 0, opacity: 0 },
     animate: prefersReducedMotion
       ? { scale: 1, opacity: 1 }
-      : { scale: 1, opacity: 1 }
+      : { scale: 1, opacity: 1 },
   };
 
   const successIconTransition = prefersReducedMotion
@@ -251,7 +383,7 @@ export function DeploymentPanel({
   // Success text animation variants
   const successTextVariants = {
     initial: { y: 4, opacity: 0 },
-    animate: { y: 0, opacity: 1 }
+    animate: { y: 0, opacity: 1 },
   };
 
   const successTextTransition = prefersReducedMotion
@@ -266,18 +398,23 @@ export function DeploymentPanel({
       exit={panelVariants.exit}
       transition={{
         ...panelTransition,
-        opacity: exitTransition
+        opacity: exitTransition,
       }}
       className={cn(
-        "flex flex-col border border-separator1 overflow-hidden",
-        status === "success" ? "bg-bgSuccess1 border-separatorSuccess" : "bg-bg1",
+        "flex flex-col rounded border border-separator1 overflow-hidden",
+        status === "success"
+          ? "bg-bgSuccess1 border-separatorSuccess"
+          : "bg-bg1",
         className
       )}
     >
       {/* Header */}
       {status === "success" ? (
         // Success State Header with choreographed animation and background pattern
-        <div className="relative flex-shrink-0" style={{ height: successHeight, overflow: 'visible' }}>
+        <div
+          className="relative flex-shrink-0"
+          style={{ height: successHeight, overflow: "visible" }}
+        >
           {/* BackgroundPattern Layer */}
           {containerWidth > 0 && (
             <motion.div
@@ -286,7 +423,12 @@ export function DeploymentPanel({
               transition={
                 prefersReducedMotion
                   ? { duration: 0.3, ease: [0.0, 0.0, 0.2, 1] as const }
-                  : { type: "spring" as const, damping: 25, stiffness: 200, delay: 0.1 }
+                  : {
+                      type: "spring" as const,
+                      damping: 25,
+                      stiffness: 200,
+                      delay: 0.1,
+                    }
               }
               className="absolute inset-0 overflow-hidden"
             >
@@ -298,7 +440,7 @@ export function DeploymentPanel({
               />
             </motion.div>
           )}
-          
+
           {/* Pulse Wave Effect */}
           {triggerRipple && (
             <motion.div
@@ -307,9 +449,9 @@ export function DeploymentPanel({
             >
               <motion.div
                 initial={{ scale: 0, opacity: 1 }}
-                animate={{ 
+                animate={{
                   scale: 8,
-                  opacity: 0 
+                  opacity: 0,
                 }}
                 transition={
                   prefersReducedMotion
@@ -319,32 +461,45 @@ export function DeploymentPanel({
                 className="w-32 h-32 rounded-full"
                 style={{
                   background: `radial-gradient(circle, ${successColor}99 0%, ${successColor}4D 30%, transparent 70%)`,
-                  filter: 'blur(8px)',
+                  filter: "blur(8px)",
                 }}
               />
             </motion.div>
           )}
-          
+
           {/* Content Layer */}
-          <div className="relative z-10 flex items-center justify-between px-4 py-4 h-full">
-            <div className="flex items-center gap-2">
+          <div 
+            ref={successContentRef}
+            className="relative z-10 flex items-start justify-between px-4 py-4"
+          >
+            <div className="flex items-start gap-2">
               <motion.div
                 variants={successIconVariants}
                 initial="initial"
                 animate="animate"
                 transition={successIconTransition}
+                className="mt-1"
               >
                 <CircleCheckIcon className="w-4 h-4 text-fgSuccess" />
               </motion.div>
-              <motion.h3
-                variants={successTextVariants}
-                initial="initial"
-                animate="animate"
-                transition={successTextTransition}
-                className="text-sm font-semibold text-fgSuccess"
-              >
-                Your agent has been deployed
-              </motion.h3>
+              <motion.div>
+                <motion.h3
+                  variants={successTextVariants}
+                  initial="initial"
+                  animate="animate"
+                  transition={successTextTransition}
+                  className="text-sm font-semibold text-fgSuccess"
+                >
+                  Your agent has been deployed
+                </motion.h3>
+                <motion.p 
+                  variants={successTextVariants}
+                  transition={successTextTransition}
+                  className="text-xs text-fgSuccess"
+                >
+                  View your Agent versions <a href="https://cloud.livekit.io/projects/p_ilnotym1c74/agents/HA_7QjdYbvKTVbW" className="text-fgSuccess underline">here</a>.
+                </motion.p>
+              </motion.div>
             </div>
             <Button
               variant="ghost"
@@ -365,9 +520,6 @@ export function DeploymentPanel({
               <h3 className="text-sm font-semibold text-fg1">
                 Deploying your agent...
               </h3>
-              <p className="text-xs text-fg3">
-                Any new edits to your agent will need to be deployed again. This may take a few minutes.
-              </p>
             </div>
           </div>
           <Button
@@ -398,20 +550,27 @@ export function DeploymentPanel({
             className="absolute inset-0 overflow-auto px-4 py-3"
           >
             <div className="flex flex-col gap-0.5 font-mono">
-              {visibleLogs.filter(log => log != null).map((log, index) => (
-                <motion.div
-                  key={index}
-                  initial={prefersReducedMotion ? false : { opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, ease: [0.0, 0.0, 0.2, 1] as const }}
-                  className="flex items-start gap-3 text-xs leading-relaxed"
-                >
-                  <span className="text-fg4 shrink-0">
-                    {formatTimestamp(log.timestamp)}
-                  </span>
-                  <span className="text-fg1 break-all">{log.message}</span>
-                </motion.div>
-              ))}
+              {visibleLogs
+                .filter((log) => log != null)
+                .map((log, index) => (
+                  <motion.div
+                    key={index}
+                    initial={
+                      prefersReducedMotion ? false : { opacity: 0, y: 4 }
+                    }
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.2,
+                      ease: [0.0, 0.0, 0.2, 1] as const,
+                    }}
+                    className="flex items-start gap-3 text-xs leading-relaxed"
+                  >
+                    <span className="text-fg4 shrink-0">
+                      {formatTimestamp(log.timestamp)}
+                    </span>
+                    <span className="text-fg1 break-all">{log.message}</span>
+                  </motion.div>
+                ))}
             </div>
           </div>
 
@@ -434,4 +593,3 @@ export function DeploymentPanel({
     </motion.div>
   );
 }
-
