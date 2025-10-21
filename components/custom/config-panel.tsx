@@ -347,13 +347,13 @@ export default function ConfigPanel({
   language,
   pipelineMode,
   selectedVoice,
-  realtimeProvider,
+  realtimeProvider: _realtimeProvider,
   realtimeModel,
   secretName,
   secretKey,
   llmModel,
   sttService,
-  ttsService,
+  ttsService: _ttsService,
   tools,
   onNameChange,
   onSystemInstructionsChange,
@@ -387,7 +387,7 @@ export default function ConfigPanel({
   );
 
   // History tracking
-  const [changedFields, setChangedFields] = React.useState<Set<string>>(
+  const [_changedFields, setChangedFields] = React.useState<Set<string>>(
     new Set<string>()
   );
   const [pendingHistoryDescription, setPendingHistoryDescription] =
@@ -522,7 +522,7 @@ export default function ConfigPanel({
     handleFieldChange("selectedVoice");
   };
 
-  const handleRealtimeProviderChange = (value: string) => {
+  const _handleRealtimeProviderChange = (value: string) => {
     onRealtimeProviderChange(value);
     handleFieldChange("realtimeProvider");
   };
@@ -552,7 +552,7 @@ export default function ConfigPanel({
     handleFieldChange("sttService");
   };
 
-  const handleTtsServiceChange = (value: string) => {
+  const _handleTtsServiceChange = (value: string) => {
     onTtsServiceChange(value);
     handleFieldChange("ttsService");
   };
@@ -667,7 +667,7 @@ export default function ConfigPanel({
                     </Button>
                   </div>
                   <p className="text-sm text-fg3 font-normal mt-1">
-                    Define your agent's personality, tone, and behavior guidelines
+                    Define your agent&apos;s personality, tone, and behavior guidelines
                   </p>
                 </DialogHeader>
                 <div className="flex-1 min-h-0 px-6 pb-6">

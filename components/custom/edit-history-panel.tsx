@@ -201,7 +201,7 @@ export interface EditHistoryPanelProps {
 export default function EditHistoryPanel({
   trigger,
   historyItems,
-  currentUserEmail = "dylan@example.com",
+  currentUserEmail: _currentUserEmail = "dylan@example.com",
   onRevert,
 }: EditHistoryPanelProps) {
   const [open, setOpen] = React.useState(false);

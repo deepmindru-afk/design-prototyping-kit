@@ -8,7 +8,7 @@ export function useWebGLSupport(): boolean {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       setIsSupported(!!gl);
-    } catch (e) {
+    } catch {
       setIsSupported(false);
     }
   }, []);

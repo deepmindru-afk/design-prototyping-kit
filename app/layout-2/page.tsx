@@ -35,7 +35,7 @@ export default function Home() {
 
 **When responding to questions:**
 - Prioritize accuracy and clarity.
-- If you don't know, admit it and suggest a next step.
+- If you don&apos;t know, admit it and suggest a next step.
 - Break down complex ideas into simple explanations.
 - Use analogies or examples when it helps understanding.
 - Avoid jargon unless the user expects it, and explain technical terms in plain language.
